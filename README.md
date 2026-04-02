@@ -22,7 +22,7 @@
 
 ***\*优化\****
 
-架构图中的sharding-proxy存在单点故障问题，可以再配置一台sharding-proxy服务器（注意YAML配置必须一致），并且再搭建负载均衡层haproxy+keepalived，应用端连接负载均衡层，中间件层连接负载均衡层。这样就解决了单点故障问题，对负载均衡层感兴趣的朋友可以访问我的另一套架构方案中的haproxy+keepalived部分。
+架构图中的sharding-proxy存在单点故障问题，可以再配置一台sharding-proxy服务器（注意YAML配置必须一致），并且再搭建负载均衡层haproxy+keepalived，应用端连接负载均衡层，中间件层连接负载均衡层。这样就解决了单点故障问题，对负载均衡层感兴趣的朋友可以访问我的另一套架构方案中的haproxy+keepalived部分 https://github.com/wuzhiceng/MySQL-HA-Architecture-Solution-Two。
 
 ***\*二、环境准备\****
 
