@@ -1,0 +1,18 @@
+! Configuration File for keepalived
+global_defs {
+    router_id mysql_ha_155	#配置router-id
+    script_user root	  #执行脚本的系统用户
+    enable_script_security
+}
+
+vrrp_instance v_mysql_slave_wgpt1 {
+    interface ens33	#网卡名，根据自身情况添加
+    state BACKUP   #初始状态，最终状态由priority决定
+    virtual_router_id 65		#VRRP组ID，主从必须一致
+    priority 100		#优先级，优先级高的为主
+    nopreempt		#非抢占模式
+
+    notify_master /etc/keepalived/script/mha_start.sh   #角色为master时执行后面的脚本
+    notify_backup /etc/keepalived/script/mha_stop.sh    #角色为backup时执行后面的脚本
+    notify_stop /etc/keepalived/script/mha_stop.sh  #keepalived进程如果要停止了，在停止前执行后面的脚本
+}

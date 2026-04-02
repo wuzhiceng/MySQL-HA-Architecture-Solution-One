@@ -1,0 +1,26 @@
+datadir=/var/lib/mysql	#数据库目录                                         
+socket=/var/lib/mysql/mysql.sock		#套接字文件                            
+log-error=/var/log/mysqld.log		#日志文件                                 
+pid-file=/var/run/mysqld/mysqld.pid		#进程号文件                         
+binlog_rows_query_log_events=on	#开启可使用show binlog events in 'binlog文件';命令                                                                    
+server-id=513306	#服务id，用来唯一标识一个mysql实例，注意不能重复了
+max_binlog_size=2G		#binlog日志的大小，默认1024M                       
+expire_logs_days=7		#binlog日志最长保留多少天                        
+binlog_cache_size=1M	#binlog日志的缓存大小                               
+log_timestamps = SYSTEM	#把mysqld.log文件的时间戳改成系统时间，默认是纽约时间                                                                  
+#-------从库配置-----------------------------------------------                                 
+#master_info_repository=table	#把主库的信息存在表中                          
+#relay_log_info_repository=table		#把中继日志信息存在表中                        
+#read_only=1	#只读模式，不过对root账号无效                               
+#-------GTID配置-----------------------------------------------                                
+gtid_mode=on	#开启GTID，方便排错以及故障切换                         
+enforce_gtid_consistency=on		#禁止执行GTID不兼容的SQL                     
+log_slave_updates=on	#从库将中继日志中的事件，记录到二进制日志中            
+binlog_gtid_simple_recovery=on   #MySQL 在启动恢复 GTID 状态时，使用简化算法，减少 binlog 扫描，加快恢复速度                                           
+#-------无损半同步配置-----------------------------------------                         
+plugin_load="rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"		#加载相关插件                                                   
+rpl_semi_sync_master_enabled =on		#主库开启半同步，从库需关闭 
+rpl_semi_sync_slave_enabled =off		#从库开启半同步，主库需关闭                                                  
+rpl_semi_sync_master_timeout = 5000	#主库等待从库ack的超时时间，单位毫秒                                                                         
+rpl_semi_sync_master_wait_point = AFTER_SYNC		#设置为增强版半同步复制，主从数据一致性比默认的异步复制更好                                    
+rpl_semi_sync_master_wait_for_slave_count = 1		#设置主库需得到多少个从库的ack才能把事务标记为commit     

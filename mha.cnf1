@@ -1,0 +1,26 @@
+[server default]
+manager_workdir=/etc/mha		#工作目录
+manager_log=/var/log/mha.log	#日志文件
+# 用于管理机登录并管理集群的账号和密码
+user=wzc
+password=wzc123
+# 用于主从复制的账号和密码
+repl_user=replay
+repl_password=replay123
+ssh_user=root		#ssh用户
+ping_interval=1	#检测间隔
+master_binlog_dir=/var/lib/mysql	#集群存放binlog日志的目录
+master_ip_failover_script=/usr/local/bin/master_ip_failover1		#故障切换脚本
+master_ip_online_change_script=/usr/local/bin/master_ip_online_change1	#在线切换脚本
+
+[server1]
+hostname=10.0.0.151
+candidate_master=1
+
+[server2]
+hostname=10.0.0.152
+candidate_master=1
+
+[server3]
+hostname=10.0.0.153
+candidate_master=1	#如果不想让 153 成为主库（比如机器配置差），可以设为 0

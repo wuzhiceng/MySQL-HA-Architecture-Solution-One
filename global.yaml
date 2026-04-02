@@ -1,0 +1,18 @@
+mode:
+  type: Standalone	#模式类型，这里选择单机模式
+  repository:
+    type: file	#yaml文件存储在本地
+
+authority:		#配置用户密码以及权限信息，用于sharding连接mysql集群
+  users:
+    - user: wzc@%
+      password: wzc123
+  privilege:
+    type: ALL_PERMITTED
+
+transaction:
+  defaultType: XA		#分布式事务的处理模式，XA模式使得数据强一致性且部署简单，但是性能差
+  providerType: Atomikos
+
+props:		#属性配置
+  sql-show: true		#开启sql打印功能，可以打印出实际执行的sql以及路由到了哪个数据源。测试环境下打开可方便排查故障，生产环境下最好关闭

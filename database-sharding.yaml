@@ -1,0 +1,95 @@
+databaseName: sharding_db
+
+dataSources:
+  dn1_write:
+    url: jdbc:mysql://10.0.0.100:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+
+  dn1_read1:
+    url: jdbc:mysql://10.0.0.152:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+
+  dn1_read2:
+    url: jdbc:mysql://10.0.0.153:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+    
+  dn2_write:
+    url: jdbc:mysql://10.0.0.10:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+
+  dn2_read1:
+    url: jdbc:mysql://10.0.0.52:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+
+  dn2_read2:
+    url: jdbc:mysql://10.0.0.53:3306/sqldb1?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: wzc
+    password: wzc123
+
+rules:
+- !SHARDING
+  tables:
+    test:    
+      actualDataNodes: readwrite_dn${1..2}.test_${1..2}   
+      databaseStrategy:       
+        standard:  
+          shardingColumn: id  
+          shardingAlgorithmName: database_inline   
+      tableStrategy:         
+        standard:    
+          shardingColumn: id  
+          shardingAlgorithmName: table_inline
+      keyGenerateStrategy:      
+        column: id        
+        keyGeneratorName: snowflake 
+      auditStrategy:        
+        auditorNames:       
+         - sharding_key_required_auditor    
+        allowHintDisable: true    
+
+  shardingAlgorithms:      
+    database_inline:        
+      type: INLINE   
+      props:    
+        algorithm-expression: readwrite_dn${id % 2+1}
+ 
+  shardingAlgorithms:
+    table_inline:
+      type: INLINE
+      props:
+        algorithm-expression: test_${id % 2+1}    
+  
+  keyGenerators:     
+    snowflake:      
+      type: SNOWFLAKE     
+      
+  auditors: 
+    sharding_key_required_auditor:      
+      type:  DML_SHARDING_CONDITIONS     
+
+- !READWRITE_SPLITTING
+  dataSourceGroups:
+    readwrite_dn1:
+      writeDataSourceName: dn1_write
+      readDataSourceNames: 
+        - dn1_read1
+        - dn1_read2
+      transactionalReadQueryStrategy: PRIMARY
+      loadBalancerName: round_robin
+    readwrite_dn2:
+      writeDataSourceName: dn2_write
+      readDataSourceNames: 
+        - dn2_read1
+        - dn2_read2
+      transactionalReadQueryStrategy: PRIMARY
+      loadBalancerName: round_robin
+  loadBalancers:
+    round_robin:
+      type: ROUND_ROBIN
+
+

@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+use strict;
+use warnings FATAL => 'all';
+use Getopt::Long;
+
+my ($command, $ssh_user, $orig_master_host, $new_master_host);
+my ($orig_master_ssh_port, $new_master_ssh_port);
+
+GetOptions(
+  'command=s'              => \$command,
+  'ssh_user=s'             => \$ssh_user,
+  'orig_master_host=s'     => \$orig_master_host,
+  'new_master_host=s'      => \$new_master_host,
+  'orig_master_ssh_port=i' => \$orig_master_ssh_port,
+  'new_master_ssh_port=i'  => \$new_master_ssh_port,
+);
+
+$ssh_user ||= 'root';
+$orig_master_ssh_port ||= 22;
+$new_master_ssh_port  ||= 22;
+
+my $vip = "10.0.0.10/24";
+my $vip_ip = "10.0.0.10";
+my $dev = "ens33";
+
+sub ssh_exec {
+  my ($host, $port, $cmd, $fatal) = @_;
+  my $ssh = "ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o BatchMode=yes -p $port $ssh_user\@$host \"$cmd\"";
+  my $ret = system($ssh);
+  if ($ret != 0 && $fatal) {
+    die "execute failed: $ssh\n";
+  }
+}
+
+if ($command eq "status") {
+  exit 0;
+}
+elsif ($command eq "stop" || $command eq "stopssh") {
+  die "no orig master host\n" unless $orig_master_host;
+  ssh_exec($orig_master_host, $orig_master_ssh_port,
+    "ip addr del $vip dev $dev", 1);
+  exit 0;
+}
+elsif ($command eq "start") {
+  die "no new master host\n" unless $new_master_host;
+  ssh_exec($new_master_host, $new_master_ssh_port,
+    "ip addr add $vip dev $dev && arping -q -c 3 -A -I $dev $vip_ip >/dev/null 2>&1 || true", 1);
+  exit 0;
+}
+
+exit 0;
+
